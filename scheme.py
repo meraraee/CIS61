@@ -322,8 +322,23 @@ def do_if_form(vals, env):
 
 def do_and_form(vals, env):
     """Evaluate short-circuited and with parameters VALS in environment ENV."""
-    "*** YOUR CODE HERE ***"
-
+    
+    # q B14
+    if vals is nil:
+        return True
+        
+    while vals.second is not  nil:
+        result = scheme_eval(vals.first, env)
+        if not scheme_true(result):
+            return False
+        
+        vals = vals.second
+        
+    # return last expression (since everything must be evaluated)
+    return scheme_eval(vals.first, env)
+    
+    
+    
 def quote(value):
     """Return a Scheme expression quoting the Scheme VALUE.
 
@@ -335,9 +350,27 @@ def quote(value):
     """
     return Pair("quote", Pair(value, nil))
 
+
+
 def do_or_form(vals, env):
     """Evaluate short-circuited or with parameters VALS in environment ENV."""
-    "*** YOUR CODE HERE ***"
+    # vals: scheme linked list (Pair structure)
+    
+    # q B14
+    if vals is nil:
+        return False
+        
+    while vals.second is not nil:
+        result = scheme_eval(vals.first, env)
+        if scheme_true(result):
+            return quote(result) # quoting, to protect value being from being interpreted again
+            
+        vals = vals.second
+        
+    # return the first True expression found
+    return scheme_eval(vals.first, env)
+    
+    
 
 def do_cond_form(vals, env):
     """Evaluate cond form with parameters VALS in environment ENV."""
