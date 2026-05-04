@@ -56,12 +56,18 @@ def scheme_eval(expr, env):
 
 def scheme_apply(procedure, args, env):
     """Apply Scheme PROCEDURE to argument values ARGS in environment ENV."""
+    
     if isinstance(procedure, PrimitiveProcedure):
         return apply_primitive(procedure, args, env)
+        
     elif isinstance(procedure, LambdaProcedure):
-        "*** YOUR CODE HERE ***"
+        # q 12
+        new_frame = procedure.env.make_call_frame(procedure.formals, args)
+        return scheme_eval(procedure.body, new_frame)
+        
     elif isinstance(procedure, MuProcedure):
         "*** YOUR CODE HERE ***"
+        
     else:
         raise SchemeError("Cannot call {0}".format(str(procedure)))
 
@@ -227,9 +233,9 @@ def do_lambda_form(vals, env):
     # q8
     body_exprs = vals.second
     
-    if body_exprs.second is nil: # single expression
+    if len(body_exprs) == 1:                # single expression
         body = body_exprs.first
-    else:  # multiple expressions
+    else:                                   # multiple expressions
         body = Pair("begin", body_exprs)
 
     return LambdaProcedure(formals, body, env) # only creating funciton object!
@@ -244,18 +250,30 @@ def do_mu_form(vals):
 
 def do_define_form(vals, env):
     """Evaluate a define form with parameters VALS in environment ENV."""
-    check_form(vals, 2)
+    
+    check_form(vals, 2) # check valid (define __ __) structure
     target = vals[0]
+    
+    # case 1: function define
     if scheme_symbolp(target):
-        check_form(vals, 2, 2)
+        check_form(vals, 2, 2) # must be exaclty 2 parts: name & value
         
-        # q A5
-        env.define(target, scheme_eval(vals[1], env))
+        # evaluate value expression & binding: variable -> value
+        env.define(target, scheme_eval(vals[1], env)) # q A5
         return target
+        
+    # case 2: variable define
     elif isinstance(target, Pair):
         check_formals(target.second)
-        env.define(target.first, LambdaProcedure(target.second, vals.second.first, env))
-        return target.first
+        body_exprs = vals.second
+        if len(body_exprs) == 1:
+            body = body_exprs.first
+        else:
+            body = Pair("begin", body_exprs)
+            
+        env.define(target.first, LambdaProcedure(target.second, body, env))
+        return target.first # returns function name
+        
     else:
         raise SchemeError("bad argument to define")
 
@@ -293,7 +311,14 @@ def do_let_form(vals, env):
 def do_if_form(vals, env):
     """Evaluate if form with parameters VALS in environment ENV."""
     check_form(vals, 2, 3)
-    "*** YOUR CODE HERE ***"
+    # q A13
+    if scheme_true(scheme_eval(vals[0], env)):
+        return vals[1]
+    else:
+        if len(vals) == 3:
+            return vals[2]
+        else:
+            return okay
 
 def do_and_form(vals, env):
     """Evaluate short-circuited and with parameters VALS in environment ENV."""

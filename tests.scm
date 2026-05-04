@@ -6,7 +6,37 @@
 ;;;
 ;;; after the last test you wish to run.
 
-;;; *** Add more of your own here! ***
+(* 7 3)
+; expect 21
+
+((lambda (x) (+ x 1))8)
+; expects 9
+
+((lambda (xy) (+ x y)) 20 7)
+; expect 27
+
+(define (square x) (* x x))
+; square
+(square 4)
+; expect 16
+
+(define square (lambda (x) (* x x)))
+; square
+(square 5)
+; expect 25
+
+(define (f x x)(+ x 1))
+; error: there should be no duplicatesf
+
+(define (0 x) (+ x 10))
+; erorr: invalid name
+
+(define (f x)
+  (define y (+ x 1))
+  (+ y 2))
+
+(f 3)
+; expect 6
 
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.
