@@ -60,13 +60,15 @@ def scheme_apply(procedure, args, env):
     if isinstance(procedure, PrimitiveProcedure):
         return apply_primitive(procedure, args, env)
         
-    elif isinstance(procedure, LambdaProcedure):
+    elif isinstance(procedure, LambdaProcedure): # lambda: where function is defined
         # q 12
         new_frame = procedure.env.make_call_frame(procedure.formals, args)
         return scheme_eval(procedure.body, new_frame)
-        
-    elif isinstance(procedure, MuProcedure):
-        "*** YOUR CODE HERE ***"
+         
+    elif isinstance(procedure, MuProcedure): # mu: where function is called
+        # q B17
+        new_frame = env.make_call_frame(procedure.formals, args)
+        return scheme_eval(procedure.body, new_frame)
         
     else:
         raise SchemeError("Cannot call {0}".format(str(procedure)))
@@ -149,18 +151,17 @@ class Frame:
         frame = Frame(self) # new frame created
         
         while formals is not nil and vals is not nil:
-            # grab first formal
-            name = formals.first
-            # grab corresponding value
-            value = vals.first
+            name = formals.first # grab first formal
+
+            value = vals.first # grab corresponding value
             
             # binding name -> value (happening in new frame)
             frame.define(name , value)
             
-            # grab next parameter
-            formals = formals.second
-            # grab next corresponding value
-            vals = vals.second
+            
+            formals = formals.second # grab next parameter
+            
+            vals = vals.second # grab next corresponding value
         
         if formals is not nil or vals is not nil:
             raise SchemeError("incorrect number of arguments")
@@ -190,6 +191,7 @@ class LambdaProcedure:
     def __repr__(self):
         args = (self.formals, self.body, self.env)
         return "LambdaProcedure({0}, {1}, {2})".format(*(repr(a) for a in args))
+
 
 class MuProcedure:
     # r: (raw string) literal characters; fixed original SyntaxWarning
@@ -238,16 +240,31 @@ def do_lambda_form(vals, env):
     else:                                   # multiple expressions
         body = Pair("begin", body_exprs)
 
-    return LambdaProcedure(formals, body, env) # only creating funciton object!
+    return LambdaProcedure(formals, body, env) # only creating function object!
     
     
 def do_mu_form(vals):
     """Evaluate a mu form with parameters VALS."""
+    
+    # q B17
     check_form(vals, 2)
     formals = vals[0]
-    check_formals(formals)
-    "*** YOUR CODE HERE ***"
+    check_formals(formals) # check valid sybmols and NO duplicates
+    
+    # everything after parameters (formals) = function body
+    body_exprs = vals.second
+    
+    # if one expression:
+    if len(body_exprs) == 1:
+        body = body_exprs.first
+        
+    # else it's multiple expressions
+    else:
+        body = Pair("begin", body_exprs)
+        
+    return MuProcedure(formals, body)
 
+# env: chain of frames; finding names -> values
 def do_define_form(vals, env):
     """Evaluate a define form with parameters VALS in environment ENV."""
     

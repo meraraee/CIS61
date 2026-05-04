@@ -20,23 +20,40 @@
 (square 4)
 ; expect 16
 
+(if 'invalid' 1 2)
+; expect 1
+
+(define x #f)
+; x
+(if x (- (40)2) (+ (* 4 2) 5))
+; expect 13
+
 (define square (lambda (x) (* x x)))
 ; square
 (square 5)
 ; expect 25
 
 (define (f x x)(+ x 1))
-; error: there should be no duplicatesf
+; error: there should be no duplicates
 
 (define (0 x) (+ x 10))
 ; erorr: invalid name
 
-(define (f x)
-  (define y (+ x 1))
-  (+ y 2))
-
+(define (f x) ; function
+  (define y (+ x 1)) ; variable
+  (+ y 2)) ; updating variable
+; x
 (f 3)
 ; expect 6
+
+(and 2 4 6)
+; expect 6
+
+(and #t 8 9 10 #f #t)
+; expect #f
+
+(or #f #f 7)
+; expect 7
 
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.
