@@ -140,8 +140,25 @@ class Frame:
         >>> env.make_call_frame(formals, vals)
         <{a: 1, b: 2, c: 3} -> <Global Frame>>
         """
-        frame = Frame(self)
-        "*** YOUR CODE HERE ***"
+        frame = Frame(self) # new frame created
+        
+        while formals is not nil and vals is not nil:
+            # grab first formal
+            name = formals.first
+            # grab corresponding value
+            value = vals.first
+            
+            # binding name -> value (happening in new frame)
+            frame.define(name , value)
+            
+            # grab next parameter
+            formals = formals.second
+            # grab next corresponding value
+            vals = vals.second
+        
+        if formals is not nil or vals is not nil:
+            raise SchemeError("incorrect number of arguments")
+            
         return frame
 
     def define(self, sym, val):
@@ -231,6 +248,7 @@ def do_define_form(vals, env):
     target = vals[0]
     if scheme_symbolp(target):
         check_form(vals, 2, 2)
+        
         # q A5
         env.define(target, scheme_eval(vals[1], env))
         return target
@@ -353,7 +371,29 @@ def check_formals(formals):
 
     >>> check_formals(read_line("(a b c)"))
     """
-    "*** YOUR CODE HERE ***"
+    
+    if not scheme_listp(formals):
+        raise SchemeError("formals must be a valid list")
+    
+    # tracking already seen parameters
+    seen_parameters = set()
+    
+    while formals is not nil:
+        parameter = formals.first
+        
+        if not scheme_symbolp(parameter): # q 11b
+            raise SchemeError("invalid symbol in formals list")
+        if parameter in seen_parameters:
+            raise SchemeError("repeated parameter in formals list")
+            
+        # remembering/tracking each parameter
+        seen_parameters.add(parameter)
+        
+        # forwarding to next parameter in formals
+        formals = formals.second
+        
+        
+
 
 ##################
 # Tail Recursion #
