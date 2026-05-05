@@ -18,13 +18,26 @@
       (op (car sequence)
           (accumulate op initial (cdr sequence)))))
 
+
+
 ; Problem 18
 
 ;; Merge two lists LIST1 and LIST2 according to COMP and return
 ;; the merged lists.
 (define (merge comp list1 list2)
-    ; *** YOUR CODE HERE ***
-    nil)
+
+  (cond 
+    ; base case
+    ((null? list1) list2)
+    ((null? list2) list1)
+
+    ((comp (car list1) (car list2)) 
+      (cons(car list1) (merge comp (cdr list1) list2))) ; if list1 is greater
+
+      (else (cons(car list2) (merge comp list1 (cdr list2)))) ; if list2 is greater
+  )
+)
+
 
 (merge < '(1 5 7 9) '(4 8 10))
 ; expect (1 4 5 7 8 9 10)
@@ -56,6 +69,8 @@
 
 (merge greater-list '((3 2 1) (1 1) (0)) '((4 0) (3 2 0) (3 2) (1)))
 ; expect ((4 0) (3 2 1) (3 2 0) (3 2) (1 1) (1) (0))
+
+
 
 
 ; Problem 19
@@ -109,8 +124,15 @@
 ;; Takes a TREE of numbers and outputs a list of sums from following each
 ;; possible path from root to leaf.
 (define (tree-sums tree)
-  ; *** YOUR CODE HERE ***
-  nil)
+  ; base case
+  (if (null? (children tree))
+    (list (entry tree))
+      ;else, recurse through the tree
+      (accumulate append nil
+        (map (lambda (child)
+         (map (lambda (s) (+ (entry tree) s))
+                  (tree-sums child)))
+                (children tree)))))
 
 (tree-sums tree)
 ; expect (20 19 13 16 11)

@@ -311,6 +311,30 @@ def do_let_form(vals, env):
 
     # Add a frame containing bindings
     names, values = nil, nil
+    # q A16
+    while bindings is not nil:
+        binding = bindings.first
+        check_form(binding, 2, 2)
+        name = binding.first
+        if not scheme_symbolp(name):
+            raise SchemeError("binding name is not a valid symbol")
+            
+        value_expr = binding.second.first
+        value = scheme_eval(value_expr, env)
+        names = Pair(name, names)
+        values = Pair(value, values)
+        bindings = bindings.second
+    rev_names, rev_values = nil, nil
+    
+    while names is not nil:
+        rev_names = Pair(names.first, rev_names)
+        rev_values = Pair(values.first, rev_values)
+        names = names.second
+        values = values.second
+        
+    names, values = rev_names, rev_values
+    
+    
     "*** YOUR CODE HERE ***"
     new_env = env.make_call_frame(names, values)
 
@@ -403,7 +427,10 @@ def do_cond_form(vals, env):
         else:
             test = scheme_eval(clause.first, env)
         if scheme_true(test):
-            "*** YOUR CODE HERE ***"
+            # q A15
+            if clause.second is nil:
+                return test
+            return do_begin_form(clause.second, env)
     return okay
 
 def do_begin_form(vals, env):
@@ -494,7 +521,8 @@ def scheme_optimized_eval(expr, env):
         # Evaluate Combinations
         if (scheme_symbolp(first) # first might be unhashable
             and first in LOGIC_FORMS):
-            "*** YOUR CODE HERE ***"
+            expr = LOGIC_FORMS[first](rest, env)
+            continue
         elif first == "lambda":
             return do_lambda_form(rest, env)
         elif first == "mu":
@@ -504,14 +532,30 @@ def scheme_optimized_eval(expr, env):
         elif first == "quote":
             return do_quote_form(rest)
         elif first == "let":
-            "*** YOUR CODE HERE ***"
+            expr, env = do_let_form(rest, env)
+            continue
         else:
-            "*** YOUR CODE HERE ***"
+            procedure = scheme_eval(first, env)
+            args = rest.map(lambda operand: scheme_eval(operand, env))
+            
+            if isinstance(procedure, PrimitiveProcedure):
+                return scheme_apply(procedure, args, env)
+            elif isinstance(procedure, LambdaProcedure):
+                env = procedure.env.make_call_frame(procedure.formals, args)
+                expr = procedure.body
+                continue
+            elif isinstance(procedure, MuProcedure):
+                env = env.make_call_frame(procedure.formals, args)
+                expr = procedure.body
+                continue
+            else:
+                raise SchemeError("Cannot call {0}".format(str(procedure)))
+            
 
 ################################################################
 # Uncomment the following line to apply tail call optimization #
 ################################################################
-# scheme_eval = scheme_optimized_eval
+scheme_eval = scheme_optimized_eval
 
 
 ################

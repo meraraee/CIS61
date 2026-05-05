@@ -55,6 +55,25 @@
 (or #f #f 7)
 ; expect 7
 
+
+
+(define f (mu (x) (+ x y)))
+; f
+(define y 10)
+; y
+(f 5)
+; expect 15
+
+
+
+(define x 10) ; lambda is definition-enviroment only! 
+; x
+(define f (lambda (y) (+ x y)))
+; f
+(let ((x 100)) ; <- lambda IGNORES caller env
+  (f 5))
+; expect 15 
+
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.
 
