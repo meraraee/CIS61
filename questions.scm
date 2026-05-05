@@ -78,9 +78,29 @@
 ;; A list of all ways to partition TOTAL, where  each partition must
 ;; be at most MAX-VALUE and there are at most MAX-PIECES partitions.
 (define (list-partitions total max-pieces max-value)
-  ; *** YOUR CODE HERE ***
-  nil)
 
+  ; base cases
+  (cond 
+    ; base case 1: total = 0 (stop, found valid partition!)
+    ((= total 0) (cons nil nil))
+
+    ; base case 2: total < 0 (invalid)
+    ((< total 0) nil)
+
+    ; base case 3: max-pieces = 0 (invalid)
+    ((= max-pieces 0) nil)
+
+    ; base case 4: max-value = 0 (invalid)
+    ((= max-value 0)  nil)
+    (else
+      (append
+        (map (lambda(partition)(cons max-value partition))   (list-partitions (- total max-value) (- max-pieces 1) max-value))
+
+        (list-partitions total  max-pieces (- max-value 1))
+      )
+    )
+  )  
+)
 ; Problem 19 tests rely on correct Problem 18.
 (sort-lists (list-partitions 5 2 4))
 ; expect ((4 1) (3 2))
