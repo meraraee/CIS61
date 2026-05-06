@@ -1,9 +1,11 @@
-# CIS61
-Project 4: Scheme Interpreter
+# CIS61 - Project 4: Scheme Interpreter
 
-Eval calls apply, which just calls eval again! When does it all end?
-
+Eval calls apply, which just calls eval again! When does it all end? 
 In this project, I've developed an interpreter for a subset of the Scheme language. 
+
+
+
+
 
  scheme.py              → The Scheme evaluator
  
